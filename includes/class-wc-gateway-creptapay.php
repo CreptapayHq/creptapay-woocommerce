@@ -58,7 +58,19 @@ class WC_Gateway_CreptaPay extends WC_Payment_Gateway {
 	/* ================================================================== */
 
 	public function webhook_url() {
-		return WC()->api_request_url( $this->id );
+		return $this->public_https_url( WC()->api_request_url( $this->id ) );
+	}
+
+	/**
+	 * CreptaPay rejects http URLs except localhost. TasteWP and other proxied
+	 * hosts often store the site URL as http even when the shop is on https.
+	 */
+	private function public_https_url( $url ) {
+		$host = (string) wp_parse_url( $url, PHP_URL_HOST );
+		if ( in_array( $host, array( 'localhost', '127.0.0.1' ), true ) ) {
+			return $url;
+		}
+		return set_url_scheme( $url, 'https' );
 	}
 
 	public function init_form_fields() {
@@ -343,8 +355,19 @@ class WC_Gateway_CreptaPay extends WC_Payment_Gateway {
 			return array( 'result' => 'failure' );
 		}
 
-		$env = $this->environment();
-		$api = $this->api( $env );
+		$env    = $this->environment();
+		$api    = $this->api( $env );
+		$amount = (float) wc_format_decimal( $order->get_total(), wc_get_price_decimals() );
+		$email  = sanitize_email( $order->get_billing_email() );
+
+		if ( $amount <= 0 ) {
+			wc_add_notice( __( 'This order has no amount to charge.', 'creptapay-woocommerce' ), 'error' );
+			return array( 'result' => 'failure' );
+		}
+		if ( ! is_email( $email ) ) {
+			wc_add_notice( __( 'A billing email is required to start a crypto payment.', 'creptapay-woocommerce' ), 'error' );
+			return array( 'result' => 'failure' );
+		}
 
 		// Customer came back and retried: reuse the open payment if it still matches.
 		$existing = $this->reusable_checkout_url( $order, $api, $env );
@@ -352,27 +375,32 @@ class WC_Gateway_CreptaPay extends WC_Payment_Gateway {
 			return array( 'result' => 'success', 'redirect' => $existing );
 		}
 
+		$customer = array(
+			'email'      => $email,
+			'first_name' => $order->get_billing_first_name() ? $order->get_billing_first_name() : __( 'Customer', 'creptapay-woocommerce' ),
+			'last_name'  => $order->get_billing_last_name() ? $order->get_billing_last_name() : '-',
+		);
+		$phone = trim( (string) $order->get_billing_phone() );
+		if ( '' !== $phone ) {
+			$customer['phone'] = $phone;
+		}
+
 		$body = array(
-			'amount'       => (float) $order->get_total(),
-			'currency'     => $order->get_currency(),
+			'amount'       => $amount,
+			'currency'     => strtoupper( $order->get_currency() ),
 			'description'  => sprintf(
 				/* translators: 1: order number, 2: site name */
 				__( 'Order #%1$s at %2$s', 'creptapay-woocommerce' ),
 				$order->get_order_number(),
 				wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES )
 			),
-			'customer'     => array(
-				'email'      => $order->get_billing_email(),
-				'first_name' => $order->get_billing_first_name() ? $order->get_billing_first_name() : __( 'Customer', 'creptapay-woocommerce' ),
-				'last_name'  => $order->get_billing_last_name() ? $order->get_billing_last_name() : '-',
-				'phone'      => $order->get_billing_phone(),
-			),
-			'redirect_url' => $this->get_return_url( $order ),
+			'customer'     => $customer,
+			'redirect_url' => $this->public_https_url( $this->get_return_url( $order ) ),
 			'metadata'     => array(
 				'order_id'  => (string) $order->get_id(),
 				'order_key' => $order->get_order_key(),
 				'source'    => 'woocommerce',
-				'site'      => home_url(),
+				'site'      => $this->public_https_url( home_url() ),
 			),
 		);
 
@@ -380,7 +408,14 @@ class WC_Gateway_CreptaPay extends WC_Payment_Gateway {
 			$payment = $api->create_payment( $body );
 		} catch ( CreptaPay_API_Exception $e ) {
 			self::log( 'Create payment failed for order ' . $order_id . ': ' . $e->getMessage(), 'error' );
-			wc_add_notice( __( 'We could not start your crypto payment. Please try again or choose another payment method.', 'creptapay-woocommerce' ), 'error' );
+			wc_add_notice(
+				sprintf(
+					/* translators: %s: error from CreptaPay */
+					__( 'We could not start your crypto payment. %s', 'creptapay-woocommerce' ),
+					$e->getMessage()
+				),
+				'error'
+			);
 			return array( 'result' => 'failure' );
 		}
 

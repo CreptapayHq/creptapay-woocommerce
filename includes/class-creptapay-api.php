@@ -93,10 +93,11 @@ class CreptaPay_API {
 			'method'  => $method,
 			'timeout' => 30,
 			'headers' => array(
-				'Accept'       => 'application/json',
-				'Content-Type' => 'application/json',
-				'x-api-key'    => $key,
-				'User-Agent'   => 'CreptaPay-WooCommerce/' . CREPTAPAY_WC_VERSION . '; ' . home_url(),
+				'Accept'        => 'application/json',
+				'Content-Type'  => 'application/json',
+				'x-api-key'     => $key,
+				'Authorization' => 'Bearer ' . $key,
+				'User-Agent'    => 'CreptaPay-WooCommerce/' . CREPTAPAY_WC_VERSION . '; ' . home_url(),
 			),
 		);
 		if ( null !== $body ) {
@@ -114,15 +115,34 @@ class CreptaPay_API {
 
 		$status = (int) wp_remote_retrieve_response_code( $response );
 		$json   = json_decode( wp_remote_retrieve_body( $response ), true );
-
 		if ( $status < 200 || $status >= 300 ) {
-			$message = is_array( $json ) && ! empty( $json['message'] )
-				? $json['message']
-				/* translators: %d: HTTP status */
-				: sprintf( __( 'CreptaPay returned HTTP %d', 'creptapay-woocommerce' ), $status );
-			throw new CreptaPay_API_Exception( $message, $status );
+			throw new CreptaPay_API_Exception( self::error_message( $json, $status ), $status );
 		}
 
 		return is_array( $json ) && isset( $json['data'] ) ? $json['data'] : array();
+	}
+
+	/**
+	 * @param mixed $json Decoded response body.
+	 */
+	private static function error_message( $json, $status ) {
+		if ( is_array( $json ) ) {
+			foreach ( array( 'message', 'error', 'detail' ) as $key ) {
+				if ( empty( $json[ $key ] ) ) {
+					continue;
+				}
+				if ( is_string( $json[ $key ] ) ) {
+					return $json[ $key ];
+				}
+				if ( is_array( $json[ $key ] ) ) {
+					$flat = array_filter( $json[ $key ], 'is_string' );
+					if ( $flat ) {
+						return implode( ' ', $flat );
+					}
+				}
+			}
+		}
+		/* translators: %d: HTTP status */
+		return sprintf( __( 'CreptaPay returned HTTP %d', 'creptapay-woocommerce' ), $status );
 	}
 }
