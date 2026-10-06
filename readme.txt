@@ -2,9 +2,9 @@
 Contributors: creptapay
 Tags: woocommerce, crypto, stablecoin, usdc, usdt
 Requires at least: 6.0
-Tested up to: 6.6
+Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.2.0
+Stable tag: 0.2.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -20,6 +20,22 @@ CreptaPay adds a "Pay with stablecoins" option to your WooCommerce checkout. Cus
 * Every payment is re-checked with CreptaPay before an order is completed, including amount and currency.
 * Works with the classic checkout and the Checkout block. Compatible with HPOS.
 * Store currency must be one CreptaPay supports (USD, EUR and NGN at the time of writing). The list is fetched from CreptaPay hourly, so newly supported currencies work without updating the plugin.
+
+== External services ==
+
+This plugin connects to the CreptaPay API (https://api.creptapay.COM) to take payments. It cannot work without it. You need a CreptaPay account and API keys.
+
+What is sent, and when:
+
+* At checkout, when a customer chooses CreptaPay: the order total and currency, a description with the order number and your store name, the customer's billing email, first and last name and phone number (if given), the return URL, and the order ID, order key and your store's address (so the payment can be matched to the order).
+* When the customer returns, and when CreptaPay sends a payment update: the CreptaPay payment ID, to read the payment's status.
+* When you save the settings: your API keys and your store's webhook address, to register where CreptaPay sends payment updates.
+* About once an hour while CreptaPay is enabled: a request for the list of supported store currencies. No customer data is sent.
+
+The customer then pays on the CreptaPay checkout page, which is run by CreptaPay.
+
+* Terms of Service: https://creptapay.com/terms-of-service
+* Privacy Policy: https://creptapay.com/privacy-policy
 
 == Installation ==
 
@@ -44,6 +60,11 @@ Your site must be reachable over https for CreptaPay to deliver webhooks. On a l
 Make sure the site is public, uses https, and that no security plugin or firewall blocks POST requests to `/wc-api/creptapay/`.
 
 == Changelog ==
+
+= 0.2.1 =
+* Checkout wording now reads "Pay with stablecoins (USDC, USDT)". Existing stores keep the title they saved.
+* Readme documents the CreptaPay service, what data is sent and when.
+* Translations load from WordPress.org automatically.
 
 = 0.2.0 =
 * Supported store currencies now come from CreptaPay instead of a list baked into the plugin, so a newly supported currency works without an update.
