@@ -21,7 +21,7 @@ class CreptaPay_API_Exception extends Exception {
 }
 
 class CreptaPay_API {
-	const DEFAULT_BASE_URL = 'https://api.creptapay.online/v1';
+	const DEFAULT_BASE_URL = 'https://api.creptapay.com/v1';
 
 	/** @var string */
 	private $base_url;
