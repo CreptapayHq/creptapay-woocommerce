@@ -1,25 +1,25 @@
 === CreptaPay for WooCommerce ===
 Contributors: creptapay
-Tags: woocommerce, crypto, stablecoin, usdc, payments
+Tags: woocommerce, crypto, stablecoin, usdc, usdt
 Requires at least: 6.0
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 0.1.0
+Stable tag: 0.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Accept USDC, EURC and USDT in WooCommerce. Orders are confirmed automatically by a signed webhook.
+Accept stablecoins (USDC and USDT) in WooCommerce. Orders are confirmed automatically by a signed webhook.
 
 == Description ==
 
-CreptaPay adds a "Pay with crypto" option to your WooCommerce checkout. Customers are sent to the secure CreptaPay checkout, pay with stablecoins on Base, Polygon or Celo, and come back to your order confirmation page. Your order is marked paid as soon as CreptaPay confirms the payment.
+CreptaPay adds a "Pay with stablecoins" option to your WooCommerce checkout. Customers are sent to the secure CreptaPay checkout, pay with USDC or USDT from any wallet on the network of their choice, and come back to your order confirmation page. Your order is marked paid as soon as CreptaPay confirms the payment.
 
 * Sandbox and live keys, with a single checkbox to switch.
 * The webhook is registered with CreptaPay automatically when you save your keys.
 * Webhooks are verified with your secret key (HMAC-SHA256) and replay-protected.
 * Every payment is re-checked with CreptaPay before an order is completed, including amount and currency.
 * Works with the classic checkout and the Checkout block. Compatible with HPOS.
-* Store currency must be USD or EUR.
+* Store currency must be one CreptaPay supports (USD, EUR and NGN at the time of writing). The list is fetched from CreptaPay hourly, so newly supported currencies work without updating the plugin.
 
 == Installation ==
 
@@ -44,6 +44,10 @@ Your site must be reachable over https for CreptaPay to deliver webhooks. On a l
 Make sure the site is public, uses https, and that no security plugin or firewall blocks POST requests to `/wc-api/creptapay/`.
 
 == Changelog ==
+
+= 0.2.0 =
+* Supported store currencies now come from CreptaPay instead of a list baked into the plugin, so a newly supported currency works without an update.
+* Added Nigerian naira (NGN) to the currencies shipped as a fallback.
 
 = 0.1.0 =
 * First release.

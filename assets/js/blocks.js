@@ -6,7 +6,7 @@
 	const { decodeEntities } = window.wp.htmlEntities;
 
 	const settings = getSetting( 'creptapay_data', {} );
-	const title = decodeEntities( settings.title || 'Pay with crypto' );
+	const title = decodeEntities( settings.title || 'Pay with stablecoins' );
 	const description = decodeEntities( settings.description || '' );
 
 	const Content = () => createElement( 'div', null, description );

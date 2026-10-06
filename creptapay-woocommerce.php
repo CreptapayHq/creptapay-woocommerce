@@ -2,8 +2,8 @@
 /**
  * Plugin Name:       CreptaPay for WooCommerce
  * Plugin URI:        https://creptapay.online
- * Description:       Accept USDC, EURC and USDT in WooCommerce with CreptaPay. Supports sandbox and live keys, and confirms orders automatically through a signed webhook.
- * Version:           0.1.0
+ * Description:       Accept stablecoins (USDC and USDT) in WooCommerce with CreptaPay. Supports sandbox and live keys, and confirms orders automatically through a signed webhook.
+ * Version:           0.2.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            CreptaPay
@@ -21,7 +21,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'CREPTAPAY_WC_VERSION', '0.1.0' );
+define( 'CREPTAPAY_WC_VERSION', '0.2.0' );
 define( 'CREPTAPAY_WC_FILE', __FILE__ );
 define( 'CREPTAPAY_WC_PATH', plugin_dir_path( __FILE__ ) );
 define( 'CREPTAPAY_WC_URL', plugin_dir_url( __FILE__ ) );

@@ -58,6 +58,62 @@ class CreptaPay_API {
 	}
 
 	/* ------------------------------------------------------------------ */
+	/* Currencies (public)                                                */
+	/* ------------------------------------------------------------------ */
+
+	/**
+	 * Fiat currencies CreptaPay can price in, cached for an hour. The list
+	 * is served by the API so a store never ships its own copy: currencies
+	 * are added there without a plugin release.
+	 *
+	 * Never throws — a store must still check out if this request fails, so
+	 * the caller falls back to the codes we know shipped.
+	 *
+	 * @return array List of currency codes, uppercase. Empty when unknown.
+	 */
+	public function fiat_currencies() {
+		$cache_key = 'creptapay_fiat_currencies_' . md5( $this->base_url );
+		$cached    = get_transient( $cache_key );
+		if ( is_array( $cached ) ) {
+			return $cached;
+		}
+
+		$response = wp_remote_get(
+			$this->base_url . '/currency/fiat',
+			array(
+				'timeout' => 10,
+				'headers' => array(
+					'Accept'     => 'application/json',
+					'User-Agent' => 'CreptaPay-WooCommerce/' . CREPTAPAY_WC_VERSION . '; ' . home_url(),
+				),
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			// Try again in five minutes rather than on every page load.
+			set_transient( $cache_key, array(), 5 * MINUTE_IN_SECONDS );
+			return array();
+		}
+
+		$status = (int) wp_remote_retrieve_response_code( $response );
+		$json   = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( $status < 200 || $status >= 300 || empty( $json['data'] ) || ! is_array( $json['data'] ) ) {
+			set_transient( $cache_key, array(), 5 * MINUTE_IN_SECONDS );
+			return array();
+		}
+
+		$codes = array();
+		foreach ( $json['data'] as $currency ) {
+			if ( ! empty( $currency['code'] ) ) {
+				$codes[] = strtoupper( (string) $currency['code'] );
+			}
+		}
+
+		set_transient( $cache_key, $codes, HOUR_IN_SECONDS );
+		return $codes;
+	}
+
+	/* ------------------------------------------------------------------ */
 	/* Webhooks (secret key)                                              */
 	/* ------------------------------------------------------------------ */
 

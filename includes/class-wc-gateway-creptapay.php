@@ -15,7 +15,12 @@ defined( 'ABSPATH' ) || exit;
 
 class WC_Gateway_CreptaPay extends WC_Payment_Gateway {
 
-	const SUPPORTED_CURRENCIES = array( 'USD', 'EUR' );
+	/**
+	 * Currencies we know shipped with this version. Only used when the API's
+	 * list can't be reached — `supported_currencies()` prefers that, so a
+	 * currency added to CreptaPay works here without a plugin update.
+	 */
+	const FALLBACK_CURRENCIES = array( 'USD', 'EUR', 'NGN' );
 
 	/** Order meta keys. */
 	const META_PAYMENT_ID  = '_creptapay_payment_id';
@@ -33,7 +38,7 @@ class WC_Gateway_CreptaPay extends WC_Payment_Gateway {
 	public function __construct() {
 		$this->id                 = CREPTAPAY_WC_GATEWAY_ID;
 		$this->method_title       = __( 'CreptaPay', 'creptapay-woocommerce' );
-		$this->method_description = __( 'Accept USDC, EURC and USDT. Customers pay on the secure CreptaPay checkout and orders are confirmed automatically.', 'creptapay-woocommerce' );
+		$this->method_description = __( 'Accept stablecoins (USDC and USDT). Customers pay on the secure CreptaPay checkout and orders are confirmed automatically.', 'creptapay-woocommerce' );
 		$this->has_fields         = false;
 		$this->supports           = array( 'products' );
 		$this->icon               = apply_filters( 'creptapay_wc_icon', '' );
@@ -85,13 +90,13 @@ class WC_Gateway_CreptaPay extends WC_Payment_Gateway {
 				'title'       => __( 'Title', 'creptapay-woocommerce' ),
 				'type'        => 'text',
 				'description' => __( 'What customers see at checkout.', 'creptapay-woocommerce' ),
-				'default'     => __( 'Pay with crypto (USDC, EURC, USDT)', 'creptapay-woocommerce' ),
+				'default'     => __( 'Pay with stablecoins (USDC, USDT)', 'creptapay-woocommerce' ),
 				'desc_tip'    => true,
 			),
 			'description'        => array(
 				'title'       => __( 'Description', 'creptapay-woocommerce' ),
 				'type'        => 'textarea',
-				'default'     => __( 'You will be taken to CreptaPay to pay with stablecoins on Base, Polygon or Celo.', 'creptapay-woocommerce' ),
+				'default'     => __( 'You will be taken to the secure CreptaPay checkout to pay with USDC or USDT from any wallet.', 'creptapay-woocommerce' ),
 				'desc_tip'    => true,
 				'description' => __( 'Shown under the payment method at checkout.', 'creptapay-woocommerce' ),
 			),
@@ -345,7 +350,26 @@ class WC_Gateway_CreptaPay extends WC_Payment_Gateway {
 		if ( '' === $keys['public'] || '' === $keys['secret'] ) {
 			return false;
 		}
-		return in_array( get_woocommerce_currency(), self::SUPPORTED_CURRENCIES, true );
+		return in_array( get_woocommerce_currency(), $this->supported_currencies(), true );
+	}
+
+	/**
+	 * The fiat currencies CreptaPay accepts, from the API when reachable and
+	 * the shipped list otherwise.
+	 *
+	 * @return array Uppercase currency codes.
+	 */
+	public function supported_currencies() {
+		try {
+			$codes = $this->api( $this->environment() )->fiat_currencies();
+			if ( ! empty( $codes ) ) {
+				return $codes;
+			}
+		} catch ( Exception $e ) {
+			self::log( 'Could not fetch supported currencies: ' . $e->getMessage() );
+		}
+
+		return self::FALLBACK_CURRENCIES;
 	}
 
 	public function process_payment( $order_id ) {
