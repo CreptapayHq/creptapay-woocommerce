@@ -1,19 +1,19 @@
 <?php
 /**
- * Makes CreptaPay available in the WooCommerce Checkout block.
+ * Makes Creptapay available in the WooCommerce Checkout block.
  *
- * @package CreptaPay\WooCommerce
+ * @package Creptapay\WooCommerce
  */
 
 defined( 'ABSPATH' ) || exit;
 
 use Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType;
 
-final class CreptaPay_Blocks_Support extends AbstractPaymentMethodType {
+final class Creptapay_Blocks_Support extends AbstractPaymentMethodType {
 
 	protected $name = 'creptapay';
 
-	/** @var WC_Gateway_CreptaPay|null */
+	/** @var WC_Gateway_Creptapay|null */
 	private $gateway;
 
 	public function initialize() {

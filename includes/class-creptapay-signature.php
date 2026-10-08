@@ -1,22 +1,22 @@
 <?php
 /**
- * Verifies CreptaPay webhook signatures.
+ * Verifies Creptapay webhook signatures.
  *
- * Header: X-CreptaPay-Signature-V2: t=<unix ms>,v1=<hex>
+ * Header: X-Creptapay-Signature-V2: t=<unix ms>,v1=<hex>
  * v1 = HMAC-SHA256( secret key, "<t>.<raw request body>" )
  *
- * @package CreptaPay\WooCommerce
+ * @package Creptapay\WooCommerce
  */
 
 defined( 'ABSPATH' ) || exit;
 
-class CreptaPay_Signature {
+class Creptapay_Signature {
 	/** Reject deliveries older/newer than this (replay protection). */
 	const TOLERANCE_SECONDS = 300;
 
 	/**
 	 * @param string   $raw_body Exact request body bytes.
-	 * @param string   $header   Value of X-CreptaPay-Signature-V2.
+	 * @param string   $header   Value of X-Creptapay-Signature-V2.
 	 * @param string[] $secrets  Secret keys to try (sandbox and/or live).
 	 * @param int|null $now_ms   Current time in ms (for tests).
 	 * @return string|false The secret that matched, or false.

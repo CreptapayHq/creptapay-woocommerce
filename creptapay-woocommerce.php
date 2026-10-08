@@ -1,12 +1,12 @@
 <?php
 /**
- * Plugin Name:       CreptaPay for WooCommerce
+ * Plugin Name:       Creptapay for WooCommerce
  * Plugin URI:        https://creptapay.com
- * Description:       Accept stablecoins (USDC and USDT) in WooCommerce with CreptaPay. Supports sandbox and live keys, and confirms orders automatically through a signed webhook.
+ * Description:       Accept stablecoins (USDC and USDT) in WooCommerce with Creptapay. Supports sandbox and live keys, and confirms orders automatically through a signed webhook.
  * Version:           0.2.1
  * Requires at least: 6.0
  * Requires PHP:      7.4
- * Author:            CreptaPay
+ * Author:            Creptapay
  * Author URI:        https://creptapay.com
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
@@ -15,7 +15,7 @@
  * WC requires at least: 7.0
  * WC tested up to:   9.3
  *
- * @package CreptaPay\WooCommerce
+ * @package Creptapay\WooCommerce
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -50,7 +50,7 @@ add_action(
 				'admin_notices',
 				static function () {
 					echo '<div class="notice notice-error"><p>' .
-						esc_html__( 'CreptaPay for WooCommerce needs WooCommerce to be installed and active.', 'creptapay-woocommerce' ) .
+						esc_html__( 'Creptapay for WooCommerce needs WooCommerce to be installed and active.', 'creptapay-woocommerce' ) .
 						'</p></div>';
 				}
 			);
@@ -64,7 +64,7 @@ add_action(
 		add_filter(
 			'woocommerce_payment_gateways',
 			static function ( $gateways ) {
-				$gateways[] = 'WC_Gateway_CreptaPay';
+				$gateways[] = 'WC_Gateway_Creptapay';
 				return $gateways;
 			}
 		);
@@ -84,7 +84,7 @@ add_action(
 		add_action(
 			'woocommerce_blocks_payment_method_type_registration',
 			static function ( $registry ) {
-				$registry->register( new CreptaPay_Blocks_Support() );
+				$registry->register( new Creptapay_Blocks_Support() );
 			}
 		);
 	}

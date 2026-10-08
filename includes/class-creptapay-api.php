@@ -1,16 +1,16 @@
 <?php
 /**
- * Minimal CreptaPay REST client built on the WordPress HTTP API.
+ * Minimal Creptapay REST client built on the WordPress HTTP API.
  *
- * @package CreptaPay\WooCommerce
+ * @package Creptapay\WooCommerce
  */
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Thrown for any failed CreptaPay API call.
+ * Thrown for any failed Creptapay API call.
  */
-class CreptaPay_API_Exception extends Exception {
+class Creptapay_API_Exception extends Exception {
 	/** @var int HTTP status (0 = network error). */
 	public $status;
 
@@ -20,7 +20,7 @@ class CreptaPay_API_Exception extends Exception {
 	}
 }
 
-class CreptaPay_API {
+class Creptapay_API {
 	const DEFAULT_BASE_URL = 'https://api.creptapay.com/v1';
 
 	/** @var string */
@@ -62,7 +62,7 @@ class CreptaPay_API {
 	/* ------------------------------------------------------------------ */
 
 	/**
-	 * Fiat currencies CreptaPay can price in, cached for an hour. The list
+	 * Fiat currencies Creptapay can price in, cached for an hour. The list
 	 * is served by the API so a store never ships its own copy: currencies
 	 * are added there without a plugin release.
 	 *
@@ -84,7 +84,7 @@ class CreptaPay_API {
 				'timeout' => 10,
 				'headers' => array(
 					'Accept'     => 'application/json',
-					'User-Agent' => 'CreptaPay-WooCommerce/' . CREPTAPAY_WC_VERSION . '; ' . home_url(),
+					'User-Agent' => 'Creptapay-WooCommerce/' . CREPTAPAY_WC_VERSION . '; ' . home_url(),
 				),
 			)
 		);
@@ -138,11 +138,11 @@ class CreptaPay_API {
 
 	/**
 	 * @return array The `data` field of the response.
-	 * @throws CreptaPay_API_Exception On network or API errors.
+	 * @throws Creptapay_API_Exception On network or API errors.
 	 */
 	private function request( $method, $path, $body, $key ) {
 		if ( '' === $key ) {
-			throw new CreptaPay_API_Exception( __( 'API key is missing.', 'creptapay-woocommerce' ) );
+			throw new Creptapay_API_Exception( __( 'API key is missing.', 'creptapay-woocommerce' ) );
 		}
 
 		$args = array(
@@ -153,7 +153,7 @@ class CreptaPay_API {
 				'Content-Type'  => 'application/json',
 				'x-api-key'     => $key,
 				'Authorization' => 'Bearer ' . $key,
-				'User-Agent'    => 'CreptaPay-WooCommerce/' . CREPTAPAY_WC_VERSION . '; ' . home_url(),
+				'User-Agent'    => 'Creptapay-WooCommerce/' . CREPTAPAY_WC_VERSION . '; ' . home_url(),
 			),
 		);
 		if ( null !== $body ) {
@@ -163,16 +163,16 @@ class CreptaPay_API {
 		$response = wp_remote_request( $this->base_url . $path, $args );
 
 		if ( is_wp_error( $response ) ) {
-			throw new CreptaPay_API_Exception(
+			throw new Creptapay_API_Exception(
 				/* translators: %s: error message */
-				sprintf( __( 'Could not reach CreptaPay: %s', 'creptapay-woocommerce' ), $response->get_error_message() )
+				sprintf( __( 'Could not reach Creptapay: %s', 'creptapay-woocommerce' ), $response->get_error_message() )
 			);
 		}
 
 		$status = (int) wp_remote_retrieve_response_code( $response );
 		$json   = json_decode( wp_remote_retrieve_body( $response ), true );
 		if ( $status < 200 || $status >= 300 ) {
-			throw new CreptaPay_API_Exception( self::error_message( $json, $status ), $status );
+			throw new Creptapay_API_Exception( self::error_message( $json, $status ), $status );
 		}
 
 		return is_array( $json ) && isset( $json['data'] ) ? $json['data'] : array();
@@ -199,6 +199,6 @@ class CreptaPay_API {
 			}
 		}
 		/* translators: %d: HTTP status */
-		return sprintf( __( 'CreptaPay returned HTTP %d', 'creptapay-woocommerce' ), $status );
+		return sprintf( __( 'Creptapay returned HTTP %d', 'creptapay-woocommerce' ), $status );
 	}
 }

@@ -1,24 +1,24 @@
 <?php
 /**
- * CreptaPay payment gateway for WooCommerce.
+ * Creptapay payment gateway for WooCommerce.
  *
  * Flow:
- *   1. Checkout: create a CreptaPay payment and send the customer to the hosted checkout.
- *   2. CreptaPay posts a signed webhook to /wc-api/creptapay/ when the payment changes.
+ *   1. Checkout: create a Creptapay payment and send the customer to the hosted checkout.
+ *   2. Creptapay posts a signed webhook to /wc-api/creptapay/ when the payment changes.
  *   3. The webhook re-reads the payment with the secret key and completes / holds / fails the order.
  *   4. The thank-you page double-checks in case the webhook hasn't arrived yet.
  *
- * @package CreptaPay\WooCommerce
+ * @package Creptapay\WooCommerce
  */
 
 defined( 'ABSPATH' ) || exit;
 
-class WC_Gateway_CreptaPay extends WC_Payment_Gateway {
+class WC_Gateway_Creptapay extends WC_Payment_Gateway {
 
 	/**
 	 * Currencies we know shipped with this version. Only used when the API's
 	 * list can't be reached — `supported_currencies()` prefers that, so a
-	 * currency added to CreptaPay works here without a plugin update.
+	 * currency added to Creptapay works here without a plugin update.
 	 */
 	const FALLBACK_CURRENCIES = array( 'USD', 'EUR', 'NGN' );
 
@@ -37,8 +37,8 @@ class WC_Gateway_CreptaPay extends WC_Payment_Gateway {
 
 	public function __construct() {
 		$this->id                 = CREPTAPAY_WC_GATEWAY_ID;
-		$this->method_title       = __( 'CreptaPay', 'creptapay-woocommerce' );
-		$this->method_description = __( 'Accept stablecoins (USDC and USDT). Customers pay on the secure CreptaPay checkout and orders are confirmed automatically.', 'creptapay-woocommerce' );
+		$this->method_title       = __( 'Creptapay', 'creptapay-woocommerce' );
+		$this->method_description = __( 'Accept stablecoins (USDC and USDT). Customers pay on the secure Creptapay checkout and orders are confirmed automatically.', 'creptapay-woocommerce' );
 		$this->has_fields         = false;
 		$this->supports           = array( 'products' );
 		$this->icon               = apply_filters( 'creptapay_wc_icon', '' );
@@ -67,7 +67,7 @@ class WC_Gateway_CreptaPay extends WC_Payment_Gateway {
 	}
 
 	/**
-	 * CreptaPay rejects http URLs except localhost. TasteWP and other proxied
+	 * Creptapay rejects http URLs except localhost. TasteWP and other proxied
 	 * hosts often store the site URL as http even when the shop is on https.
 	 */
 	private function public_https_url( $url ) {
@@ -83,7 +83,7 @@ class WC_Gateway_CreptaPay extends WC_Payment_Gateway {
 			'enabled'            => array(
 				'title'   => __( 'Enable/Disable', 'creptapay-woocommerce' ),
 				'type'    => 'checkbox',
-				'label'   => __( 'Enable CreptaPay', 'creptapay-woocommerce' ),
+				'label'   => __( 'Enable Creptapay', 'creptapay-woocommerce' ),
 				'default' => 'no',
 			),
 			'title'              => array(
@@ -96,7 +96,7 @@ class WC_Gateway_CreptaPay extends WC_Payment_Gateway {
 			'description'        => array(
 				'title'       => __( 'Description', 'creptapay-woocommerce' ),
 				'type'        => 'textarea',
-				'default'     => __( 'You will be taken to the secure CreptaPay checkout to pay with USDC or USDT from any wallet.', 'creptapay-woocommerce' ),
+				'default'     => __( 'You will be taken to the secure Creptapay checkout to pay with USDC or USDT from any wallet.', 'creptapay-woocommerce' ),
 				'desc_tip'    => true,
 				'description' => __( 'Shown under the payment method at checkout.', 'creptapay-woocommerce' ),
 			),
@@ -140,7 +140,7 @@ class WC_Gateway_CreptaPay extends WC_Payment_Gateway {
 				'type'        => 'title',
 				'description' => sprintf(
 					/* translators: %s: webhook URL */
-					__( 'Saving your keys registers this URL with CreptaPay automatically, so paid orders are confirmed without any setup:<br><code>%s</code>', 'creptapay-woocommerce' ),
+					__( 'Saving your keys registers this URL with Creptapay automatically, so paid orders are confirmed without any setup:<br><code>%s</code>', 'creptapay-woocommerce' ),
 					esc_html( $this->webhook_url() )
 				),
 			),
@@ -151,8 +151,8 @@ class WC_Gateway_CreptaPay extends WC_Payment_Gateway {
 			'api_url'            => array(
 				'title'       => __( 'API URL', 'creptapay-woocommerce' ),
 				'type'        => 'text',
-				'default'     => CreptaPay_API::DEFAULT_BASE_URL,
-				'description' => __( 'Leave as is unless CreptaPay support tells you otherwise.', 'creptapay-woocommerce' ),
+				'default'     => Creptapay_API::DEFAULT_BASE_URL,
+				'description' => __( 'Leave as is unless Creptapay support tells you otherwise.', 'creptapay-woocommerce' ),
 				'desc_tip'    => true,
 			),
 			'debug'              => array(
@@ -239,7 +239,7 @@ class WC_Gateway_CreptaPay extends WC_Payment_Gateway {
 					} else {
 						$message .= ' ' . __( 'and reachable', 'creptapay-woocommerce' );
 					}
-				} catch ( CreptaPay_API_Exception $e ) {
+				} catch ( Creptapay_API_Exception $e ) {
 					self::log( 'Webhook test failed: ' . $e->getMessage() );
 				}
 
@@ -250,7 +250,7 @@ class WC_Gateway_CreptaPay extends WC_Payment_Gateway {
 				} else {
 					WC_Admin_Settings::add_error( $label . ': ' . $message );
 				}
-			} catch ( CreptaPay_API_Exception $e ) {
+			} catch ( Creptapay_API_Exception $e ) {
 				$msg            = sprintf(
 					/* translators: 1: environment, 2: error */
 					__( '%1$s: could not register the webhook: %2$s', 'creptapay-woocommerce' ),
@@ -280,7 +280,7 @@ class WC_Gateway_CreptaPay extends WC_Payment_Gateway {
 			echo '<div class="notice notice-warning"><p>' . wp_kses_post(
 				sprintf(
 					/* translators: 1: environment, 2: settings URL */
-					__( 'CreptaPay is enabled but your %1$s keys are missing, so it is hidden at checkout. <a href="%2$s">Add your keys</a>.', 'creptapay-woocommerce' ),
+					__( 'Creptapay is enabled but your %1$s keys are missing, so it is hidden at checkout. <a href="%2$s">Add your keys</a>.', 'creptapay-woocommerce' ),
 					'sandbox' === $env ? __( 'sandbox', 'creptapay-woocommerce' ) : __( 'live', 'creptapay-woocommerce' ),
 					esc_url( $url )
 				)
@@ -335,7 +335,7 @@ class WC_Gateway_CreptaPay extends WC_Payment_Gateway {
 	public function api( $env = null ) {
 		$env  = $env ? $env : $this->environment();
 		$keys = $this->keys_for( $env );
-		return new CreptaPay_API( $keys['public'], $keys['secret'], $this->get_option( 'api_url' ) );
+		return new Creptapay_API( $keys['public'], $keys['secret'], $this->get_option( 'api_url' ) );
 	}
 
 	/* ================================================================== */
@@ -354,7 +354,7 @@ class WC_Gateway_CreptaPay extends WC_Payment_Gateway {
 	}
 
 	/**
-	 * The fiat currencies CreptaPay accepts, from the API when reachable and
+	 * The fiat currencies Creptapay accepts, from the API when reachable and
 	 * the shipped list otherwise.
 	 *
 	 * @return array Uppercase currency codes.
@@ -430,11 +430,11 @@ class WC_Gateway_CreptaPay extends WC_Payment_Gateway {
 
 		try {
 			$payment = $api->create_payment( $body );
-		} catch ( CreptaPay_API_Exception $e ) {
+		} catch ( Creptapay_API_Exception $e ) {
 			self::log( 'Create payment failed for order ' . $order_id . ': ' . $e->getMessage(), 'error' );
 			wc_add_notice(
 				sprintf(
-					/* translators: %s: error from CreptaPay */
+					/* translators: %s: error from Creptapay */
 					__( 'We could not start your crypto payment. %s', 'creptapay-woocommerce' ),
 					$e->getMessage()
 				),
@@ -456,7 +456,7 @@ class WC_Gateway_CreptaPay extends WC_Payment_Gateway {
 		$order->add_order_note(
 			sprintf(
 				/* translators: 1: reference, 2: environment */
-				__( 'CreptaPay payment started (reference %1$s, %2$s). Waiting for the customer to pay.', 'creptapay-woocommerce' ),
+				__( 'Creptapay payment started (reference %1$s, %2$s). Waiting for the customer to pay.', 'creptapay-woocommerce' ),
 				$payment['reference'],
 				'sandbox' === $env ? 'sandbox' : 'live'
 			)
@@ -471,7 +471,7 @@ class WC_Gateway_CreptaPay extends WC_Payment_Gateway {
 		);
 	}
 
-	private function reusable_checkout_url( WC_Order $order, CreptaPay_API $api, $env ) {
+	private function reusable_checkout_url( WC_Order $order, Creptapay_API $api, $env ) {
 		$payment_id = $order->get_meta( self::META_PAYMENT_ID );
 		$url        = $order->get_meta( self::META_CHECKOUT );
 		if ( ! $payment_id || ! $url || $order->get_meta( self::META_ENVIRONMENT ) !== $env ) {
@@ -479,7 +479,7 @@ class WC_Gateway_CreptaPay extends WC_Payment_Gateway {
 		}
 		try {
 			$payment = $api->get_payment( $payment_id );
-		} catch ( CreptaPay_API_Exception $e ) {
+		} catch ( Creptapay_API_Exception $e ) {
 			return '';
 		}
 		$open       = in_array( $payment['status'] ?? '', array( 'pending', 'confirming', 'underpaid' ), true );
@@ -496,7 +496,7 @@ class WC_Gateway_CreptaPay extends WC_Payment_Gateway {
 		$header = isset( $_SERVER['HTTP_X_CREPTAPAY_SIGNATURE_V2'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_CREPTAPAY_SIGNATURE_V2'] ) ) : '';
 
 		$secrets = $this->all_secrets();
-		$matched = CreptaPay_Signature::verify( (string) $raw, $header, array_values( $secrets ) );
+		$matched = Creptapay_Signature::verify( (string) $raw, $header, array_values( $secrets ) );
 		if ( false === $matched ) {
 			self::log( 'Webhook rejected: invalid or missing signature', 'warning' );
 			$this->respond( 401, array( 'message' => 'Invalid signature' ) );
@@ -516,7 +516,7 @@ class WC_Gateway_CreptaPay extends WC_Payment_Gateway {
 		$order = $this->find_order( $data );
 		if ( ! $order ) {
 			self::log( 'Webhook ' . $event['event'] . ': no matching order for ' . ( $data['reference'] ?? '?' ) );
-			// 200 so CreptaPay doesn't keep retrying something we can't match.
+			// 200 so Creptapay doesn't keep retrying something we can't match.
 			$this->respond( 200, array( 'ok' => true, 'ignored' => 'no matching order' ) );
 		}
 
@@ -551,7 +551,7 @@ class WC_Gateway_CreptaPay extends WC_Payment_Gateway {
 	}
 
 	/**
-	 * Re-read the payment from CreptaPay with the secret key and move the order.
+	 * Re-read the payment from Creptapay with the secret key and move the order.
 	 * Safe to call repeatedly.
 	 */
 	public function sync_order( WC_Order $order, $env = '', $via = '' ) {
@@ -563,7 +563,7 @@ class WC_Gateway_CreptaPay extends WC_Payment_Gateway {
 
 		try {
 			$payment = $this->api( $env )->get_payment( $payment_id );
-		} catch ( CreptaPay_API_Exception $e ) {
+		} catch ( Creptapay_API_Exception $e ) {
 			self::log( 'Could not fetch payment for order ' . $order->get_id() . ': ' . $e->getMessage(), 'error' );
 			return;
 		}
@@ -591,7 +591,7 @@ class WC_Gateway_CreptaPay extends WC_Payment_Gateway {
 			if ( ! $amount_ok || ! $currency_ok ) {
 				$order->update_status(
 					'on-hold',
-					__( 'CreptaPay reports this payment as paid, but its amount or currency does not match the order. Check it in your CreptaPay dashboard.', 'creptapay-woocommerce' )
+					__( 'Creptapay reports this payment as paid, but its amount or currency does not match the order. Check it in your Creptapay dashboard.', 'creptapay-woocommerce' )
 				);
 				return;
 			}
@@ -599,7 +599,7 @@ class WC_Gateway_CreptaPay extends WC_Payment_Gateway {
 			$order->add_order_note(
 				sprintf(
 					/* translators: 1: amount paid, 2: reference, 3: source */
-					__( 'CreptaPay payment received: %1$s (reference %2$s, via %3$s).', 'creptapay-woocommerce' ),
+					__( 'Creptapay payment received: %1$s (reference %2$s, via %3$s).', 'creptapay-woocommerce' ),
 					$paid_line,
 					$ref,
 					$via
@@ -613,7 +613,7 @@ class WC_Gateway_CreptaPay extends WC_Payment_Gateway {
 				'on-hold',
 				sprintf(
 					/* translators: 1: amount received, 2: expected */
-					__( 'CreptaPay: partial payment received (%1$s of %2$s). Waiting for the rest.', 'creptapay-woocommerce' ),
+					__( 'Creptapay: partial payment received (%1$s of %2$s). Waiting for the rest.', 'creptapay-woocommerce' ),
 					$paid_line,
 					wc_format_decimal( $payment['crypto_amount'] ?? 0 ) . ' ' . ( $payment['crypto_currency'] ?? '' )
 				)
@@ -627,10 +627,10 @@ class WC_Gateway_CreptaPay extends WC_Payment_Gateway {
 				( (float) ( $payment['amount_paid'] ?? 0 ) > 0 )
 					? sprintf(
 						/* translators: %s: amount received */
-						__( 'CreptaPay payment expired after a partial payment (%s). Refund or settle this with the customer.', 'creptapay-woocommerce' ),
+						__( 'Creptapay payment expired after a partial payment (%s). Refund or settle this with the customer.', 'creptapay-woocommerce' ),
 						$paid_line
 					)
-					: __( 'CreptaPay payment expired without payment.', 'creptapay-woocommerce' )
+					: __( 'Creptapay payment expired without payment.', 'creptapay-woocommerce' )
 			);
 		}
 	}

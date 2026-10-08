@@ -1,4 +1,4 @@
-/* CreptaPay payment method for the WooCommerce Checkout block. No build step needed. */
+/* Creptapay payment method for the WooCommerce Checkout block. No build step needed. */
 ( function () {
 	const { registerPaymentMethod } = window.wc.wcBlocksRegistry;
 	const { getSetting } = window.wc.wcSettings;
