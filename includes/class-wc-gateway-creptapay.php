@@ -493,7 +493,7 @@ class WC_Gateway_Creptapay extends WC_Payment_Gateway {
 
 	public function handle_webhook() {
 		$raw    = file_get_contents( 'php://input' );
-		$header = isset( $_SERVER['HTTP_X_CREPTAPAY_SIGNATURE_V2'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_CREPTAPAY_SIGNATURE_V2'] ) ) : '';
+		$header = isset( $_SERVER['HTTP_X_CREPTAPAY_SIGNATURE'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_CREPTAPAY_SIGNATURE'] ) ) : '';
 
 		$secrets = $this->all_secrets();
 		$matched = Creptapay_Signature::verify( (string) $raw, $header, array_values( $secrets ) );
